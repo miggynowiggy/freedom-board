@@ -13,16 +13,16 @@ export default function LandingPage() {
         span={20}
         style={{ textAlign: 'center' }}
       >
-        <Title>Welcome to Study Buddy!</Title>
+        <Title>Online Voting App</Title>
         <Title 
           level={3}
           style={{ marginTop: 20, marginBottom: 20 }}
         >
-          Where you find your soulmate, oh este study buddies!
+          Vote for your next officers!
         </Title>
-        <Button type="primary">
-          <Link to={'/login'}>Get Started!</Link>
-        </Button>
+        <Link to={'/login'}>
+          <Button type="primary">Get Started!</Button>
+        </Link>
       </Col>
     </Row>
   )

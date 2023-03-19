@@ -8,7 +8,7 @@ export default function RegisterPage() {
       align="middle"
       justify="center"
     >
-      <Col span={12}>
+      <Col span={8}>
         <Card title="Register">
           <Form 
             style={{ width: '100%' }}

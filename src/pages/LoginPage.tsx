@@ -1,4 +1,5 @@
 import { Row, Col, Card, Form, Input, Button } from 'antd'
+import { GoogleOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 
 export default function LoginPage() {
@@ -8,7 +9,7 @@ export default function LoginPage() {
       align="middle"
       justify="center"
     >
-      <Col span={12}>
+      <Col span={8}>
         <Card
           title="Login"
           style={{ width: '100%' }}
@@ -42,8 +43,9 @@ export default function LoginPage() {
             <Form.Item>
               <Link to={'/forgot-password'}>Forgot Password</Link>
               <Button  
-                type="primary" 
-                style={{ width: '100%', marginTop: 15, marginBottom: 15 }}
+                type="primary"
+                block
+                style={{ marginTop: 15, marginBottom: 15 }}
               >
                 Login
               </Button>
@@ -51,11 +53,21 @@ export default function LoginPage() {
               <Link to={'/register'}>
                 <Button 
                   type="text"
-                  style={{ width: '100%' }}
+                  block
                 >
                   Register
                 </Button>
               </Link>
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type="default"
+                block
+                style={{ backgroundColor: '#ffffff' }}
+              >
+                Login with Google
+                <GoogleOutlined />
+              </Button>
             </Form.Item>
           </Form>
         </Card>

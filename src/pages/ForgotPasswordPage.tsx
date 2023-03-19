@@ -7,7 +7,7 @@ export default function ForgotPasswordPage() {
       align="middle"
       justify="center"
     >
-      <Col span={12}>
+      <Col span={8}>
         <Card
           title="Login"
           style={{ width: '100%' }}

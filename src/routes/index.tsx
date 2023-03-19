@@ -1,5 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+// Layouts
+import AppLayout from '../layouts/AppLayout'
+
+// Pages
 import ErrorPage from '../pages/ErrorPage'
 import LandingPage from '../pages/LandingPage'
 import LoginPage from '../pages/LoginPage'
@@ -7,6 +11,7 @@ import RegisterPage from '../pages/RegisterPage'
 import ForgotPasswordPage from '../pages/ForgotPasswordPage'
 import HomePage from '../pages/HomePage'
 
+// Route Declaration
 const router = createBrowserRouter([
   {
     path: '/',
@@ -27,7 +32,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/app',
-    element: <HomePage />,
+    element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
       {
