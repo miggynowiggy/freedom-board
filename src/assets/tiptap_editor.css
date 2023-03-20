@@ -1,0 +1,16 @@
+.ProseMirror {
+  width: '100%';
+  height: '100%';
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: "Enter your thoughts....";
+  float: left;
+  color: #858585;
+  pointer-events: none;
+  height: 0;
+}

@@ -1,9 +1,10 @@
-import { useRouteError, useNavigate } from "react-router-dom";
-import { Row, Col, Typography, Button, theme } from "antd";
+import { Button, Col, Row, Typography, theme } from "antd";
+import { observer } from "mobx-react-lite";
+import { useNavigate, useRouteError } from "react-router-dom";
 const { Title } = Typography
 const { useToken } = theme
 
-export default function ErrorPage() {
+function ErrorPage() {
   const error = useRouteError()
   const navigate = useNavigate()
   const { token } = useToken()
@@ -27,3 +28,5 @@ export default function ErrorPage() {
     </Row>
   )
 }
+
+export default observer(ErrorPage)

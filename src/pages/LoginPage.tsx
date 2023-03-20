@@ -1,8 +1,9 @@
-import { Row, Col, Card, Form, Input, Button } from 'antd'
 import { GoogleOutlined } from '@ant-design/icons'
+import { Button, Card, Col, Form, Input, Row } from 'antd'
+import { observer } from 'mobx-react-lite'
 import { Link } from 'react-router-dom'
 
-export default function LoginPage() {
+function LoginPage() {
   return (
     <Row
       style={{ height: '100vh', width: '100%' }}
@@ -24,11 +25,11 @@ export default function LoginPage() {
               name="email"
               required
               rules={[
-                { required: true, message: "Please input email"}, 
-                { type: 'email', message: 'Invalid email'}
+                { required: true, message: 'Please input email' }, 
+                { type: 'email', message: 'Invalid email' }
               ]}
             >
-              <Input/>
+              <Input type="email" />
             </Form.Item>
             <Form.Item
               label="Password"
@@ -75,3 +76,5 @@ export default function LoginPage() {
     </Row>
   )
 }
+
+export default observer(LoginPage)

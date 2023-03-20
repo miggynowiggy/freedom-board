@@ -1,7 +1,9 @@
-import { Row, Col, Card, Form, Input, Button } from "antd"
+import { GoogleOutlined } from "@ant-design/icons"
+import { Button, Card, Col, Form, Input, Row } from "antd"
+import { observer } from "mobx-react-lite"
 import { Link } from "react-router-dom"
 
-export default function RegisterPage() {
+function RegisterPage() {
   return (
     <Row
       style={{ height: '100vh', width: '100%' }}
@@ -18,16 +20,23 @@ export default function RegisterPage() {
             <Form.Item
               label="Full Name"
               name="name"
-              required
+              rules={[
+                { required: true, message: "Name is required" },
+                { min: 3, message: "Is your name really this short?"}
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              label="School"
-              name="school"
+              label="Username"
+              name="username"
+              rules={[
+                { required: true, message: 'Username is required' },
+                { whitespace: false, message: 'Username should not contain space'}
+              ]}
               required
             >
-              <Input />
+              <Input/>
             </Form.Item>
             <Form.Item
               label="Email"
@@ -38,7 +47,7 @@ export default function RegisterPage() {
               ]}
               required
             >
-              <Input/>
+              <Input type="email" />
             </Form.Item>
             <Form.Item
               label="Password"
@@ -77,9 +86,18 @@ export default function RegisterPage() {
             <Form.Item>
               <Button 
                 type="primary"
-                style={{ width: '100%', marginTop: 20, marginBottom: 10 }}
+                style={{ width: '100%', marginTop: 20 }}
               >
-                  Register
+                Register
+              </Button>
+
+              <Button
+                type="default"
+                block
+                style={{ backgroundColor: '#ffffff', marginTop: 15, marginBottom: 15 }}
+              >
+                Login with Google
+                <GoogleOutlined />
               </Button>
               
               <Link to={'/login'}>
@@ -97,3 +115,5 @@ export default function RegisterPage() {
     </Row>
   )
 }
+
+export default observer(RegisterPage)

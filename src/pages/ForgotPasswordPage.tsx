@@ -1,6 +1,8 @@
+import { Button, Card, Col, Form, Input, Row } from 'antd'
+import { observer } from 'mobx-react-lite'
 import { Link } from 'react-router-dom'
-import { Row, Col, Card, Form, Input, Button } from 'antd'
-export default function ForgotPasswordPage() {
+
+function ForgotPasswordPage() {
   return (
     <Row
       style={{ height: '100vh', width: '100%' }}
@@ -51,3 +53,5 @@ export default function ForgotPasswordPage() {
     </Row>
   )
 }
+
+export default observer(ForgotPasswordPage)

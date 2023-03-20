@@ -5,11 +5,12 @@ import AppLayout from '../layouts/AppLayout'
 
 // Pages
 import ErrorPage from '../pages/ErrorPage'
-import LandingPage from '../pages/LandingPage'
-import LoginPage from '../pages/LoginPage'
-import RegisterPage from '../pages/RegisterPage'
 import ForgotPasswordPage from '../pages/ForgotPasswordPage'
 import HomePage from '../pages/HomePage'
+import LandingPage from '../pages/LandingPage'
+import LoginPage from '../pages/LoginPage'
+import ProfilePage from '../pages/ProfilePage'
+import RegisterPage from '../pages/RegisterPage'
 
 // Route Declaration
 const router = createBrowserRouter([
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: '',
         element: <HomePage />
+      },
+      {
+        path: '/app/profile',
+        element: <ProfilePage />
       }
     ]
   }

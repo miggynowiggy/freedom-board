@@ -1,31 +1,80 @@
-import { Outlet } from "react-router-dom"
-import { Layout, Typography, Row, Col } from 'antd'
+import { DownOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Col, Dropdown, Layout, MenuProps, Row, Space, Typography } from 'antd'
+import { observer } from 'mobx-react-lite'
+import { Link, Outlet, useNavigate } from "react-router-dom"
+import { useStore } from '../store'
 const { Title } = Typography
 const { Header, Content} = Layout
 
-export default function AppLayout() {
+
+function AppLayout() {
+  const { userStore } = useStore()
+  const navigate = useNavigate()
+
+  const navButtonItems = [
+    {
+      key: '1',
+      label: 'Profile',
+      icon: <UserOutlined />
+    },
+    {
+      key: '2',
+      label: "Logout",
+      icon: <LogoutOutlined />,
+    }
+  ]
+
+  const handleNavButton: MenuProps['onClick'] = async (e) => {
+    switch(e.key) {
+      case '1': {
+        navigate('/app/profile')
+        break;
+      }
+      case '2': {
+        await userStore.logout()
+      }
+    }
+  }
+
   return (
     <Layout
-      style={{ height: '100vh', width: '100vw' }}
+      style={{ width: '100vw' }}
     >
       <Header
-        style={{ height: 74 }}
+        style={{ position: 'sticky', top: 0, zIndex: 1, height: 74, width: '100%' }}
       >
         <Row
           style={{ height: '100%', width: '100%' }}
-          align="top"
-          justify="start"
+          align="middle"
+          justify="space-between"
         >
-          <Col span={22}>
-            <Title level={3} style={{ color: '#ffff'}}>Freedom Board</Title>
+          <Col span={4}>
+            <Link to={'/app/'}>
+              <Title level={3} style={{ color: '#ffff', margin: 0, padding: 0 }}>Freedom Board</Title>
+            </Link>
           </Col>
-          <Col span={2}>
+          <Col span={4}>
+            <Dropdown
+              menu={{
+                items: navButtonItems,
+                onClick: handleNavButton
+              }}
+            >
+              <Button type="primary">
+                <Space>
+                  Menu
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
           </Col>
         </Row>
       </Header>
-      <Content>
+      <Content style={{ height: '100%', width: '100%' }}>
         <Outlet />
       </Content>
     </Layout>
   )
 }
+
+export default observer(AppLayout)
