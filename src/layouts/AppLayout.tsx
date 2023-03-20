@@ -11,6 +11,12 @@ function AppLayout() {
   const { userStore } = useStore()
   const navigate = useNavigate()
 
+  useEffect(() => {
+    if (!userStore.authUser) {
+      navigate('/', { replace: true })
+    }
+  }, [userStore.authUser])
+
   const navButtonItems = [
     {
       key: '1',
@@ -78,3 +84,7 @@ function AppLayout() {
 }
 
 export default observer(AppLayout)
+
+function useEffect(arg0: () => void, arg1: any[]) {
+  throw new Error('Function not implemented.')
+}
