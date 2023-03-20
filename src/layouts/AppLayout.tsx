@@ -11,11 +11,11 @@ function AppLayout() {
   const { userStore } = useStore()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!userStore.authUser) {
-      navigate('/', { replace: true })
-    }
-  }, [userStore.authUser])
+  // useEffect(() => {
+  //   if (!userStore.authUser) {
+  //     navigate('/', { replace: true })
+  //   }
+  // }, [userStore.authUser])
 
   const navButtonItems = [
     {
