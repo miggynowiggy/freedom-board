@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
+import { addUser, loginWithEmail, registerUser } from '../services';
 import { RootStore } from './RootStore';
 
 export interface IUser {
@@ -56,6 +57,42 @@ export class UserStore {
     if (!dataUrl) {
       console.log('missing dataUrl on update picture');
       return;
+    }
+  }
+
+  @action
+  async login(email: string, password: string) {
+    const { data, error } = await loginWithEmail(email, password);
+
+    if (error) {
+      return false;
+    }
+
+    if (data) {
+      runInAction(() => {
+        this.authUser = data;
+      });
+      return true;
+    }
+  }
+
+  @action
+  async register({ email, password, name, username }: any) {
+    const authUser = await registerUser(email, password);
+    if (authUser.data) {
+      const createdUser = await addUser({
+        uid: authUser.data.user.uid,
+        email,
+        name,
+        username
+      });
+
+      if (createdUser.data) {
+        runInAction(() => {
+          this.authUser = authUser;
+          this.user = createdUser.data as IUser;
+        });
+      }
     }
   }
 

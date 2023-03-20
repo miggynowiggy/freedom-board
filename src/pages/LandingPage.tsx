@@ -18,8 +18,7 @@ function LandingPage() {
       const subscriber = onAuthStateChanged(AUTH, async (authUser) => {
         if (authUser) {
           await userStore.populateUser(authUser.uid)
-        } else {
-
+          navigate('/app/')
         }
       })
       setUnsubscriber(subscriber);

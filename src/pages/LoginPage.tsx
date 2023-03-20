@@ -1,9 +1,21 @@
 import { GoogleOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Form, Input, Row } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useStore } from '../store'
 
 function LoginPage() {
+  const { userStore } = useStore()
+  const navigate = useNavigate()
+
+  const handleLogin = async (values: any) => {
+    const { email, password } = values
+    const response = await userStore.login(email, password)
+    if (response) {
+      navigate('/app')
+    }
+  }
+  
   return (
     <Row
       style={{ height: '100vh', width: '100%' }}
@@ -19,6 +31,7 @@ function LoginPage() {
             name="login"
             layout="vertical"
             labelAlign="left"
+            onFinish={(e) => handleLogin(e)}
           >
             <Form.Item
               label="Email"
@@ -54,6 +67,7 @@ function LoginPage() {
               <Link to={'/register'}>
                 <Button 
                   type="text"
+                  htmlType="submit"
                   block
                 >
                   Register
