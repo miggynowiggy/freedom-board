@@ -14,7 +14,7 @@ function usePost(userId: string) {
     if (!unsubscribe) {
       const queryRef = query(
         postsCollection,
-        where("userId", "!=" userId),
+        where("userId", "!=", userId),
         orderBy("createdAt")
       )
       const u = onSnapshot(queryRef, (snapshot) => {

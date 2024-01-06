@@ -15,6 +15,11 @@ function LoginPage() {
       navigate('/app')
     }
   }
+
+  const handleGoogleSign = async () => {
+    const response = await userStore.googleLogin()
+    
+  }
   
   return (
     <Row
@@ -79,6 +84,7 @@ function LoginPage() {
                 type="default"
                 block
                 style={{ backgroundColor: '#ffffff' }}
+                onClick={() => handleGoogleSign()}
               >
                 Login with Google
                 <GoogleOutlined />

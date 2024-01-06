@@ -12,6 +12,43 @@ import { DB } from '../helpers/firebase';
 const collectionName = 'users';
 export const usersCollection = collection(DB, collectionName);
 
+export const getUserByUID = async (uid?: string) => {
+  if (!uid) {
+    return {
+      data: null,
+      error: new Error('User not found')
+    };
+  }
+
+  try {
+    const docRef = doc(DB, collectionName, uid);
+    const userRef = await getDoc(docRef);
+
+    if (!userRef.exists()) {
+      return {
+        data: null,
+        error: new Error('User not found')
+      };
+    }
+
+    const userData = {
+      id: userRef.id,
+      ...userRef.data()
+    };
+
+    return {
+      data: userData,
+      error: null
+    };
+  } catch (err) {
+    console.log('ERR IN FINDING USER BY UID: ', err);
+    return {
+      data: null,
+      error: err
+    };
+  }
+};
+
 export const addUser = async ({ email, uid, name, username }: any) => {
   try {
     const docRef = doc(DB, collectionName, uid);

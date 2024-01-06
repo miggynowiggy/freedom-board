@@ -8,14 +8,8 @@ const { Header, Content} = Layout
 
 
 function AppLayout() {
-  const { userStore } = useStore()
   const navigate = useNavigate()
-
-  // useEffect(() => {
-  //   if (!userStore.authUser) {
-  //     navigate('/', { replace: true })
-  //   }
-  // }, [userStore.authUser])
+  const { userStore } = useStore()
 
   const navButtonItems = [
     {
@@ -33,12 +27,14 @@ function AppLayout() {
   const handleNavButton: MenuProps['onClick'] = async (e) => {
     switch(e.key) {
       case '1': {
-        navigate('/app/profile')
-        break;
+        return navigate('/app/profile')
       }
       case '2': {
-        await userStore.logout()
+        return await userStore.logout()
       }
+
+      default: 
+        console.log("Unhandled nav option")
     }
   }
 
@@ -84,7 +80,3 @@ function AppLayout() {
 }
 
 export default observer(AppLayout)
-
-function useEffect(arg0: () => void, arg1: any[]) {
-  throw new Error('Function not implemented.')
-}

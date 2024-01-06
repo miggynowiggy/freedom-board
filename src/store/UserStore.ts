@@ -1,5 +1,11 @@
+import { User } from 'firebase/auth';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { addUser, loginWithEmail, registerUser } from '../services';
+import {
+  addUser,
+  loginWithEmail,
+  loginWithGoogle,
+  registerUser
+} from '../services';
 import { RootStore } from './RootStore';
 
 export interface IUser {
@@ -42,7 +48,12 @@ export class UserStore {
   }
 
   @action
-  async populateUser(userId: string) {}
+  populateUserStore(authUser: User | null, userData: IUser) {
+    runInAction(() => {
+      this.authUser = authUser;
+      this.user = userData;
+    });
+  }
 
   @action
   setUserList(userList: string[]) {
@@ -77,6 +88,17 @@ export class UserStore {
   }
 
   @action
+  async googleLogin() {
+    const { data, error } = await loginWithGoogle();
+
+    if (error) {
+      return error;
+    }
+
+    return data;
+  }
+
+  @action
   async register({ email, password, name, username }: any) {
     const authUser = await registerUser(email, password);
     if (authUser.data) {
@@ -93,6 +115,27 @@ export class UserStore {
           this.user = createdUser.data as IUser;
         });
       }
+    }
+  }
+
+  @action
+  async registerUserData(authUser: User | null) {
+    if (!authUser) {
+      throw new Error('User has no auth record');
+    }
+
+    const userData = await addUser({
+      uid: authUser.uid,
+      email: authUser.email,
+      name: authUser.displayName,
+      username: authUser.displayName
+    });
+
+    if (userData.data) {
+      runInAction(() => {
+        this.authUser = authUser;
+        this.user = userData.data as IUser;
+      });
     }
   }
 
