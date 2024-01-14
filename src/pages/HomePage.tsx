@@ -131,7 +131,7 @@ function HomePage() {
         shape="square"
         type="primary"
         style={{ right: 30 }}
-        icon={<DiffFilled style={{ fontSize: '1.2em' }} />}
+        icon={<DiffFilled rev style={{ fontSize: '1.2em' }} />}
         tooltip={
           <div>Add Post</div>
         }

@@ -59,7 +59,7 @@ const ProfilePicture: React.FC = () => {
 
   const uploadButton = (
     <div>
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      {loading ? <LoadingOutlined rev /> : <PlusOutlined rev />}
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );

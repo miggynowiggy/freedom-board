@@ -32,12 +32,12 @@ function AppLayout() {
     {
       key: '1',
       label: 'Profile',
-      icon: <UserOutlined />
+      icon: <UserOutlined rev />
     },
     {
       key: '2',
       label: "Logout",
-      icon: <LogoutOutlined />,
+      icon: <LogoutOutlined rev />,
     }
   ]
 
@@ -85,7 +85,7 @@ function AppLayout() {
               <Button type="primary">
                 <Space>
                   Menu
-                  <DownOutlined />
+                  <DownOutlined rev />
                 </Space>
               </Button>
             </Dropdown>

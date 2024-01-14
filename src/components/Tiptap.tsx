@@ -58,22 +58,22 @@ export default function Tiptap({ onUpdate, content, style, disable = false }: IT
   const formattingButtons = [
     {
       name: 'bold',
-      icon: <BoldOutlined />,
+      icon: <BoldOutlined rev />,
       action: editor?.chain().focus().toggleBold().run
     },
     {
       name: 'italic',
-      icon: <ItalicOutlined />,
+      icon: <ItalicOutlined rev />,
       action: editor?.chain().focus().toggleItalic().run
     },
     {
       name: 'strike',
-      icon: <StrikethroughOutlined />,
+      icon: <StrikethroughOutlined rev />,
       action: editor?.chain().focus().toggleStrike().run
     },
     {
       name: 'highlight',
-      icon: <HighlightOutlined />,
+      icon: <HighlightOutlined rev />,
       action: editor?.chain().focus().toggleHighlight().run
     }
   ]
@@ -103,14 +103,14 @@ export default function Tiptap({ onUpdate, content, style, disable = false }: IT
     {
       name: 'bulletList',
       level: 0,
-      icon: <UnorderedListOutlined />,
+      icon: <UnorderedListOutlined rev />,
       label: null,
       action: editor?.chain().focus().toggleBulletList().run
     },
     {
       name: 'orderedList',
       level: 0,
-      icon: <OrderedListOutlined />,
+      icon: <OrderedListOutlined rev />,
       label: null,
       action: editor?.chain().focus().toggleOrderedList().run
     }

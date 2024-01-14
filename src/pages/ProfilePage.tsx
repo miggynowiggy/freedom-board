@@ -57,9 +57,9 @@ function ProfilePage() {
                 icon={
                   !toggleEdit 
                   ? 
-                  <EditOutlined/>
+                  <EditOutlined rev />
                   :
-                  <CloseCircleOutlined />
+                  <CloseCircleOutlined rev />
                 }
                 onClick={() => setToggleEdit(!toggleEdit)}
               >

@@ -97,13 +97,13 @@ function Confession ({ post }: IConfessionCardPorps) {
           (userStore?.user && userStore?.user.id === post.user) &&
           <Col>
             <Space>
-              <Button type="text" icon={<EditOutlined/>} onClick={handleEdit} /> 
+              <Button type="text" icon={<EditOutlined rev />} onClick={handleEdit} /> 
               <Popconfirm
                 title="Delete this post?"
                 description="Are you sure you want to delete this post?"
                 onConfirm={handleDelete}
               >
-                <Button type="text" icon={<DeleteOutlined/>} loading={loading} />
+                <Button type="text" icon={<DeleteOutlined rev />} loading={loading} />
               </Popconfirm>
             </Space>
           </Col>
@@ -128,15 +128,15 @@ function Confession ({ post }: IConfessionCardPorps) {
             type="text" 
             icon={
               post.likes && post.likes.includes(userStore.user!.uid as string) 
-                ? <HeartFilled style={{ color: token.colorPrimary }} /> 
-                : <HeartOutlined />
+                ? <HeartFilled rev style={{ color: token.colorPrimary }} /> 
+                : <HeartOutlined rev />
             }
             style={{ marginRight: 10 }}
             onClick={handleLike}
           />
           <Button 
             type="text" 
-            icon={<MessageOutlined/>}
+            icon={<MessageOutlined rev />}
             onClick={() => globalStore.openCommentModal(post.id)}
           />
         </Col>

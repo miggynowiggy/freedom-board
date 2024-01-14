@@ -119,7 +119,7 @@ function LoginPage() {
                 onClick={() => handleGoogleSign()}
               >
                 Continue with Google
-                <GoogleOutlined />
+                <GoogleOutlined rev />
               </Button>
             </Form.Item>
           </Form>
