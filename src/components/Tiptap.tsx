@@ -1,51 +1,58 @@
 import { BoldOutlined, HighlightOutlined, ItalicOutlined, OrderedListOutlined, StrikethroughOutlined, UnorderedListOutlined } from '@ant-design/icons'
-import Document from '@tiptap/extension-document'
-import Dropcursor from '@tiptap/extension-dropcursor'
 import Highlight from '@tiptap/extension-highlight'
 import Image from '@tiptap/extension-image'
 import Mention from '@tiptap/extension-mention'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
 import TextAlign from '@tiptap/extension-text-align'
 import { BubbleMenu, EditorContent, FloatingMenu, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Button, Space } from 'antd'
-import { useStore } from '../store'
 
+import { useMemo } from 'react'
+import useUser from 'src/hooks/useUser'
+import { CUser } from 'src/types'
 import '../assets/tiptap_editor.css'
 
 interface ITiptapProps {
-  onUpdate: (e: any) => any
-  content?: any,
+  onUpdate: (e: string) => void
+  content?: string,
   style?: React.CSSProperties
+  disable: boolean
 }
 
-export default function Tiptap({ onUpdate, content, style }: ITiptapProps) {
-  const { userStore } = useStore()
+export default function Tiptap({ onUpdate, content, style, disable = false }: ITiptapProps) {
+  const { users } = useUser()
+
+  const userList = useMemo(() => {
+    const list: CUser[] = [] 
+    users.forEach((user, _) => {
+      list.push(user)
+    })
+    return list
+  }, [users])
   
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Document,
-      Dropcursor,
       Highlight,
       Image,
+      TextAlign,
       Mention.configure({
         suggestion: {
           items: ({ query }) => {
-            return userStore.userList.filter(name => name.toLowerCase().startsWith(query.toLowerCase()))
+            return userList.filter(u => 
+              u.name.toLowerCase().startsWith(query.toLowerCase()) ||
+              u.username.toLocaleLowerCase().startsWith(query.toLowerCase())
+            )
           }
         }
-      }),
-      Paragraph,
-      TextAlign,
-      Text
+      })
     ],
     content,
     onUpdate: ({ editor }) => {
-      const content = editor.getHTML()
+      const content = editor.getHTML();
       onUpdate(content)
     },
+    editable: !disable
   })
 
   const formattingButtons = [
@@ -116,8 +123,9 @@ export default function Tiptap({ onUpdate, content, style }: ITiptapProps) {
         <BubbleMenu tippyOptions={{ duration: 300 }} editor={editor}>
           <Space.Compact>
             {
-              formattingButtons.map(({ icon, name, action }) => (
+              formattingButtons.map(({ icon, name, action }, index) => (
                 <Button
+                  key={index}
                   icon={icon}
                   type={editor.isActive(name) ? 'primary' : 'default'}
                   onClick={() => action ? action() : null}
@@ -134,9 +142,10 @@ export default function Tiptap({ onUpdate, content, style }: ITiptapProps) {
         <FloatingMenu tippyOptions={{ duration: 300 }} editor={editor}>
           <Space.Compact>
             {
-              elementsButtons.map(({ action, icon, label, level, name }) => (
+              elementsButtons.map(({ action, icon, label, level, name }, index) => (
                 level ? 
                 <Button
+                  key={index}
                   onClick={() => action ? action() : null}
                   type={editor.isActive(name, { level }) ? 'primary' : 'default'}
                 >
@@ -144,6 +153,7 @@ export default function Tiptap({ onUpdate, content, style }: ITiptapProps) {
                 </Button>
                 :
                 <Button
+                  key={index}
                   icon={icon}  
                   onClick={() => action ? action() : null}
                   type={editor.isActive(name) ? 'primary' : 'default'}

@@ -1,18 +1,54 @@
 import {
+  DocumentData,
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
   collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
   setDoc,
-  updateDoc
+  updateDoc,
+  where
 } from 'firebase/firestore';
-import { dayjs } from '../helpers/date';
-import { DB } from '../helpers/firebase';
+import { dayjs } from 'src/helpers/date';
+import { DB } from 'src/helpers/firebase';
+import { CUser } from 'src/types';
 
 const collectionName = 'users';
 export const usersCollection = collection(DB, collectionName);
 
-export const getUserByUID = async (uid?: string) => {
+class UserConverter implements FirestoreDataConverter<CUser> {
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot<DocumentData>,
+    options?: SnapshotOptions | undefined
+  ): CUser {
+    const data = snapshot.data(options);
+    const user = new CUser();
+    user.id = snapshot.id;
+    user.uid = data!.uid;
+    user.email = data!.email;
+    user.name = data!.name;
+    user.username = data!.username;
+    user.picture = data!.picture;
+    user.pictureFilename = data!.pictureFilename;
+    user.createdAt = dayjs(data!.createdAt.toDate());
+    return user;
+  }
+  toFirestore(modelObject: CUser): DocumentData {
+    return {
+      ...modelObject,
+      id: modelObject.uid,
+      createdAt: modelObject!.createdAt!.toDate()
+    };
+  }
+}
+
+export const userConverter = new UserConverter();
+
+export const getUserByUID = async (uid: string) => {
   if (!uid) {
     return {
       data: null,
@@ -21,7 +57,7 @@ export const getUserByUID = async (uid?: string) => {
   }
 
   try {
-    const docRef = doc(DB, collectionName, uid);
+    const docRef = doc(DB, collectionName, uid).withConverter(userConverter);
     const userRef = await getDoc(docRef);
 
     if (!userRef.exists()) {
@@ -31,11 +67,7 @@ export const getUserByUID = async (uid?: string) => {
       };
     }
 
-    const userData = {
-      id: userRef.id,
-      ...userRef.data()
-    };
-
+    const userData = userRef.data();
     return {
       data: userData,
       error: null
@@ -49,16 +81,69 @@ export const getUserByUID = async (uid?: string) => {
   }
 };
 
-export const addUser = async ({ email, uid, name, username }: any) => {
+export const getAllUsers = async () => {
+  try {
+    const users = await getDocs(usersCollection.withConverter(userConverter));
+    return {
+      data: !users.empty ? users.docs.map((x) => x.data()) : ([] as CUser[]),
+      error: null
+    };
+  } catch (err) {
+    console.error('ERR GETTING ALL USERS: ', err);
+    return {
+      data: null,
+      error: err
+    };
+  }
+};
+
+export const searchUser = async (searchTerm: string) => {
+  try {
+    const arraySearchTerm = searchTerm.split(' ');
+
+    const queryRef = query(
+      usersCollection,
+      where('name', 'in', arraySearchTerm),
+      where('username', 'in', arraySearchTerm)
+    ).withConverter(userConverter);
+
+    const users = await getDocs(queryRef);
+
+    return {
+      data: !users.empty ? users.docs.map((x) => x.data()) : ([] as CUser[]),
+      error: null
+    };
+  } catch (err) {
+    console.error('ERR SEARCHING FOR USER: ');
+    return {
+      data: null,
+      error: err
+    };
+  }
+};
+
+export const addUser = async ({
+  email,
+  uid,
+  name,
+  username,
+  photo = ''
+}: Record<string, string>) => {
   try {
     const docRef = doc(DB, collectionName, uid);
-    const data = {
-      email,
-      name,
-      username,
-      createdAt: dayjs().format('x')
-    };
-    await setDoc(docRef, data);
+
+    const data = new CUser();
+    data.uid = uid;
+    data.name = name;
+    data.email = email;
+    data.username = username;
+    data.picture = photo;
+
+    await setDoc(docRef, {
+      ...data,
+      createdAt: data.createdAt.toDate()
+    });
+
     return {
       data,
       error: null
@@ -72,33 +157,26 @@ export const addUser = async ({ email, uid, name, username }: any) => {
   }
 };
 
-export const updateUser = async ({
-  id,
-  email,
-  username,
-  name,
-  picture
-}: any) => {
+export const updateUser = async (id: string, user: Partial<CUser>) => {
+  if (!id) {
+    return {
+      data: null,
+      error: new Error('Missing User Id')
+    };
+  }
+
   try {
-    const docRef = doc(DB, collectionName, id);
+    const docRef = doc(DB, collectionName, id).withConverter(userConverter);
     await updateDoc(docRef, {
-      email,
-      username,
-      name,
-      picture
+      ...user,
+      createdAt: user.createdAt?.toDate()
     });
+
     const updatedDoc = await getDoc(docRef);
-    if (updatedDoc.exists()) {
-      const data = Object.assign(
-        {},
-        { id: updatedDoc.id },
-        { ...updatedDoc.data() }
-      );
-      return {
-        data,
-        error: null
-      };
-    }
+    return {
+      data: updatedDoc.exists() ? updatedDoc.data() : null,
+      error: null
+    };
   } catch (err) {
     console.log('ERR IN UPDATE USER: ', err);
     return {
@@ -112,9 +190,15 @@ export const deleteUser = async (userId: string) => {
   try {
     const docRef = doc(DB, collectionName, userId);
     await deleteDoc(docRef);
-    return true;
+    return {
+      data: true,
+      error: null
+    };
   } catch (err) {
     console.log('ERR IN DELETE USER: ', err);
-    return false;
+    return {
+      data: null,
+      error: err
+    };
   }
 };

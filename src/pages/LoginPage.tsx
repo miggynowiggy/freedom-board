@@ -1,24 +1,54 @@
 import { GoogleOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Form, Input, Row } from 'antd'
+import { FirebaseError } from 'firebase/app'
 import { observer } from 'mobx-react-lite'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useStore } from '../store'
+import { toast } from 'react-toastify'
+import { loginWithEmail, loginWithGoogle } from 'src/services'
+import firebaseErrorMessageMapper from 'src/utils/firebaseErrors'
 
 function LoginPage() {
-  const { userStore } = useStore()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (values: any) => {
+  const handleLogin = async (values: Record<string, string>) => {
+    setLoading(true)
     const { email, password } = values
-    const response = await userStore.login(email, password)
-    if (response) {
+    const response = await loginWithEmail(email, password);
+
+    if (response.data) {
       navigate('/app')
     }
+
+    if (response.error) {
+      const error = response.error
+      if (error instanceof FirebaseError) {
+        toast.error(firebaseErrorMessageMapper(error))
+      } else {
+        toast.error('Something went wrong')
+      }
+    }
+    setLoading(false) 
   }
 
   const handleGoogleSign = async () => {
-    const response = await userStore.googleLogin()
-    
+    setLoading(true)
+    const response = await loginWithGoogle()
+    if (response.data) {
+      navigate('/app')
+    }
+
+    if (response.error) {
+      const error = response.error
+      if (error instanceof FirebaseError) {
+        toast.error(firebaseErrorMessageMapper(error))
+      } else {
+        toast.error('Something went wrong')
+      }
+      
+    }
+    setLoading(false)
   }
   
   return (
@@ -62,8 +92,10 @@ function LoginPage() {
             <Form.Item>
               <Link to={'/forgot-password'}>Forgot Password</Link>
               <Button  
-                type="primary"
                 block
+                type="primary"
+                htmlType="submit"
+                loading={loading}
                 style={{ marginTop: 15, marginBottom: 15 }}
               >
                 Login
@@ -71,9 +103,8 @@ function LoginPage() {
 
               <Link to={'/register'}>
                 <Button 
-                  type="text"
-                  htmlType="submit"
                   block
+                  type="text"
                 >
                   Register
                 </Button>
@@ -81,12 +112,13 @@ function LoginPage() {
             </Form.Item>
             <Form.Item>
               <Button
-                type="default"
                 block
+                type="default"
+                loading={loading}
                 style={{ backgroundColor: '#ffffff' }}
                 onClick={() => handleGoogleSign()}
               >
-                Login with Google
+                Continue with Google
                 <GoogleOutlined />
               </Button>
             </Form.Item>

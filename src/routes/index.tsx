@@ -1,35 +1,42 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 // Layouts
-import AppLayout from '../layouts/AppLayout'
+import AppLayout from 'src/layouts/AppLayout'
+import BlankLayout from 'src/layouts/BlankLayout'
 
 // Pages
-import ErrorPage from '../pages/ErrorPage'
-import ForgotPasswordPage from '../pages/ForgotPasswordPage'
-import HomePage from '../pages/HomePage'
-import LandingPage from '../pages/LandingPage'
-import LoginPage from '../pages/LoginPage'
-import ProfilePage from '../pages/ProfilePage'
-import RegisterPage from '../pages/RegisterPage'
+import ErrorPage from 'src/pages/ErrorPage'
+import ForgotPasswordPage from 'src/pages/ForgotPasswordPage'
+import HomePage from 'src/pages/HomePage'
+import LandingPage from 'src/pages/LandingPage'
+import LoginPage from 'src/pages/LoginPage'
+import ProfilePage from 'src/pages/ProfilePage'
+import RegisterPage from 'src/pages/RegisterPage'
 
 // Route Declaration
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage/>,
-    errorElement: <ErrorPage/>
-  },
-  {
-    path: '/login',
-    element: <LoginPage />
-  },
-  {
-    path: '/register',
-    element: <RegisterPage />
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPasswordPage />
+    element: <BlankLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '/',
+        element: <LandingPage />
+      },
+      {
+        path: '/login',
+        element: <LoginPage />
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />
+      }
+    ]
   },
   {
     path: '/app',
@@ -37,7 +44,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: '',
+        path: '/app/',
         element: <HomePage />
       },
       {

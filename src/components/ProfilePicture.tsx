@@ -14,6 +14,7 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 const ProfilePicture: React.FC = () => {
   const { userStore } = useStore()
   const [loading, setLoading] = useState(false);
+  const [img, setImg] = useState<RcFile>();
   const [imageUrl, setImageUrl] = useState<string>();
 
   const beforeUpload = (file: RcFile) => {
@@ -28,6 +29,7 @@ const ProfilePicture: React.FC = () => {
       return false;
     }
 
+    setImg(file)
     getBase64(file, (url) => {
       setLoading(false)
       setImageUrl(url)
@@ -35,11 +37,24 @@ const ProfilePicture: React.FC = () => {
     return false
   };
 
-  // Insert Login for inserting image
   const handleUpload = async () => {
     setLoading(true)
-    await userStore.updatePicture(imageUrl ?? "")
+
+    if (!img) {
+      setLoading(false)
+      message.error('Please upload a photo!');
+      return
+    }
+    
+    const isUploaded = await userStore.updatePicture(img)
+    if (!isUploaded) {
+      setLoading(false)
+      message.error('Profile picture cannot be uploaded due to error');
+      return
+    }
+    
     setLoading(false)
+    message.success('Profile picture uploaded!')
   }
 
   const uploadButton = (

@@ -1,6 +1,12 @@
+import dayjs from 'dayjs';
 import {
+  DocumentData,
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -9,11 +15,37 @@ import {
   updateDoc,
   where
 } from 'firebase/firestore';
-import { DB } from '../helpers/firebase';
-import { IPost } from '../store/PostStore';
+import { DB } from 'src/helpers/firebase';
+import { CPost } from 'src/types';
 
 const collectionName = 'posts';
-export const postsCollection = collection(DB, 'posts');
+export const postsCollection = collection(DB, collectionName);
+
+class PostConverter implements FirestoreDataConverter<CPost> {
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot<DocumentData>,
+    options?: SnapshotOptions | undefined
+  ): CPost {
+    const data = snapshot.data(options);
+    const post = new CPost();
+    post.id = snapshot.id;
+    post.title = data!.title;
+    post.contents = data!.contents;
+    post.isAnonymous = data!.isAnonymous;
+    post.createdAt = dayjs(data!.createdAt.toDate());
+    post.likes = data!.likes;
+    post.user = data!.user;
+    return post;
+  }
+  toFirestore(modelObject: CPost): DocumentData {
+    return {
+      ...modelObject,
+      createdAt: modelObject!.createdAt!.toDate()
+    };
+  }
+}
+
+export const postConverter = new PostConverter();
 
 export const getPostById = async (id: string) => {
   if (!id) {
@@ -24,23 +56,11 @@ export const getPostById = async (id: string) => {
   }
 
   try {
-    const docRef = doc(DB, collectionName, id);
+    const docRef = doc(DB, collectionName, id).withConverter(postConverter);
     const postRef = await getDoc(docRef);
 
-    if (!postRef.exists()) {
-      return {
-        data: null,
-        error: null
-      };
-    }
-
-    const postData = {
-      id: postRef.id,
-      ...postRef.data()
-    };
-
     return {
-      data: postData,
+      data: postRef.exists() ? postRef.data() : null,
       error: null
     };
   } catch (err) {
@@ -63,21 +83,15 @@ export const getPostsByUser = async (uid: string) => {
   try {
     const postQuery = query(
       postsCollection,
-      where('uid', '==', uid),
+      where('user', '==', uid),
       orderBy('createdAt', 'desc')
-    );
+    ).withConverter(postConverter);
 
     const postsRef = await getDocs(postQuery);
-    if (postsRef.empty) {
-      return {
-        data: [] as IPost[],
-        error: null
-      };
-    }
-
-    const posts = postsRef.docs.map((x) => ({ id: x.id, ...x.data() }));
     return {
-      data: posts,
+      data: !postsRef.empty
+        ? postsRef.docs.map((doc) => doc.data())
+        : ([] as CPost[]),
       error: null
     };
   } catch (err) {
@@ -89,25 +103,16 @@ export const getPostsByUser = async (uid: string) => {
   }
 };
 
-export const addPost = async (Post: Partial<IPost>) => {
+export const addPost = async (Post: Partial<CPost>) => {
   try {
-    const postData = {
-      user: Post.user,
-      createdAt: Post.createdAt,
-      title: Post.title,
-      content: Post.content,
-      isAnonymous: Post.isAnonymous,
-      likes: [],
-      comments: []
-    };
-
-    const finalData = await addDoc(postsCollection, postData);
-
+    const toAdd = Post;
+    const finalData = await addDoc(
+      postsCollection.withConverter(postConverter),
+      toAdd
+    );
+    toAdd.id = finalData.id;
     return {
-      data: {
-        id: finalData.id,
-        ...postData
-      },
+      data: toAdd,
       error: null
     };
   } catch (err) {
@@ -119,12 +124,45 @@ export const addPost = async (Post: Partial<IPost>) => {
   }
 };
 
-export const updatePost = async (id: string, Post: Partial<IPost>) => {
+export const updatePost = async (id: string, Post: Partial<CPost>) => {
+  if (!id) {
+    return {
+      data: null,
+      error: new Error('Missing Post ID')
+    };
+  }
+
   try {
-    const docRef = doc(DB, collectionName, id);
+    const docRef = doc(DB, collectionName, id).withConverter(postConverter);
     await updateDoc(docRef, Post);
+
+    return {
+      data: Post,
+      error: null
+    };
   } catch (err) {
     console.error('ERR IN UPDATE POST: ', err);
+    return {
+      data: null,
+      error: err
+    };
+  }
+};
+
+export const deletePost = async (id: string) => {
+  if (!id) {
+    return {
+      data: null,
+      error: new Error('Missing Post ID')
+    };
+  }
+
+  try {
+    const docRef = doc(DB, collectionName, id);
+    await deleteDoc(docRef);
+    return true;
+  } catch (err) {
+    console.error('ERR DELETING POST: ', err);
     return {
       data: null,
       error: err

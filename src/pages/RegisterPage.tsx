@@ -1,9 +1,42 @@
-import { GoogleOutlined } from "@ant-design/icons"
 import { Button, Card, Col, Form, Input, Row } from "antd"
+import { FirebaseError } from "firebase/app"
 import { observer } from "mobx-react-lite"
+import { useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "react-toastify"
+import { addUser, registerUser } from "src/services"
+import firebaseErrorMessageMapper from "src/utils/firebaseErrors"
 
 function RegisterPage() {
+  const [loading, setLoading] = useState(false)
+
+  const handleRegister = async (values: Record<string, string>) => {
+    setLoading(loading)
+    const { username, email, password } = values
+    const response = await registerUser(email, password);
+
+    if (response.data) {
+      const authUser = response.data;
+      await addUser({
+        uid: authUser!.user!.uid,
+        email,
+        username
+      })
+      toast.success(`Welcome @${username}!`)
+    }
+
+    if (response.error) {
+      const error = response.error
+      if (error instanceof FirebaseError) {
+        toast.error(firebaseErrorMessageMapper(error))
+      } else {
+        toast.error('Something went wrong')
+      }
+    }
+
+    setLoading(false)
+  }
+
   return (
     <Row
       style={{ height: '100vh', width: '100%' }}
@@ -16,6 +49,7 @@ function RegisterPage() {
             style={{ width: '100%' }}
             layout="vertical"
             labelAlign="left"
+            onFinish={(e) => handleRegister(e)}
           >
             <Form.Item
               label="Full Name"
@@ -86,18 +120,11 @@ function RegisterPage() {
             <Form.Item>
               <Button 
                 type="primary"
+                htmlType="submit"
+                loading={loading}
                 style={{ width: '100%', marginTop: 20 }}
               >
                 Register
-              </Button>
-
-              <Button
-                type="default"
-                block
-                style={{ backgroundColor: '#ffffff', marginTop: 15, marginBottom: 15 }}
-              >
-                Login with Google
-                <GoogleOutlined />
               </Button>
               
               <Link to={'/login'}>

@@ -8,7 +8,7 @@ function ErrorPage() {
   const error = useRouteError()
   const navigate = useNavigate()
   const { token } = useToken()
-  console.log('ERR IN APP: ', error)
+  console.error('ERR IN APP: ', error)
 
   return (
     <Row

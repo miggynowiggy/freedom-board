@@ -1,55 +1,72 @@
 import { Avatar, Col, List, Modal, Row } from "antd"
 import { observer } from "mobx-react-lite"
-import { useEffect, useState } from "react"
-import { dayjs } from '../helpers'
-import { useStore } from "../store"
-import { IPost } from "../store/PostStore"
+import { useCallback, useEffect, useState } from "react"
+import { dayjs } from 'src/helpers'
+import useComment from "src/hooks/useComment"
+import useUser from "src/hooks/useUser"
+import { useStore } from "src/store"
+import { CComment, CPost, CUser } from "src/types"
 import ConfessionCard from "./ConfessionCard"
 
 interface IPostCommentsProps {
-  userId: number | string
-  postId: number | string
+  userId: string
+  postId: string
 }
 
 function PostComments ({ userId, postId }: IPostCommentsProps) {
   const { globalStore, postStore } = useStore()
-  const [post, setPost] = useState<IPost | null>()
-  const [comments] = useState([
-    {}
-  ])
+  const { users } = useUser()
+  const { comments } = useComment(postId)
+
+  const [post, setPost] = useState<CPost>(new CPost())
+  const [user, setUser] = useState<CUser>(new CUser())
+
+  const populateData = useCallback(async () => {
+    if (postStore.post) {
+      setPost(postStore.post)
+    }
+
+    const completeUser = users.get(post.user)
+    setUser(completeUser || new CUser())
+  }, [globalStore.currentPostId])
+
+  const extractAvatar = useCallback((uid: string) => {
+    const u = users.get(uid)
+    if (!u) return ''
+    return u.picture
+  }, [users])
 
   useEffect(() => {
     if (globalStore.currentPostId) {
-      const id = globalStore.currentPostId
-      const post = postStore.posts.find(p => p.id === id)
-      setPost(post ?? null)
+      populateData()
     }
   }, [globalStore.currentPostId])
 
-  const handlePostComment = () => {
-    console.log('post')
+  const handlePostComment = async () => {
+    console.log('this is comment')
   }
   
   return (
     <Modal
       open={globalStore.commentModal}
-      title={`@${post?.user.username || 'anon'}'s Post`}
+      title={`@${user.username || 'anon'}'s Post`}
       onOk={handlePostComment}
       onCancel={() => globalStore.closeCommentModal()}
       centered
       closable
     >
-      <ConfessionCard details={post as IPost} />
+      <ConfessionCard post={post} />
       <Row align="top" justify="center" style={{ marginTop: 10 }}>
         <Col span={22}>
           <List
             itemLayout="horizontal"
             dataSource={comments}
-            renderItem={(comment, index) => (
+            renderItem={(comment: CComment) => (
               <List.Item>
                 <List.Item.Meta
+                  key={comment.id}
                   avatar={
-                    <Avatar src={comment.user?.picture} />
+                    <Avatar src={extractAvatar(comment.user)} />
                   }
                   title={comment.content}
                   description={dayjs(comment.createdAt).fromNow()}

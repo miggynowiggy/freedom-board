@@ -1,11 +1,17 @@
 import {
   GoogleAuthProvider,
+  Unsubscribe,
+  User,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut
 } from 'firebase/auth';
-import { AUTH } from '../helpers/firebase';
+import { AUTH } from 'src/helpers/firebase';
+
+const EnabledOAuthProviders = ['google'];
 
 export async function loginWithEmail(email: string, password: string) {
   try {
@@ -62,3 +68,41 @@ export async function logout() {
     return false;
   }
 }
+
+export async function sendPasswordReset(email: string) {
+  try {
+    await sendPasswordResetEmail(AUTH, email);
+    return true;
+  } catch (err) {
+    console.error('ERR WHILE SENDING PASSWORD RESET: ', err);
+    return false;
+  }
+}
+
+export function initializeAuthSubscriber(
+  onUserChange: (authUser: User | null) => Promise<unknown>
+) {
+  try {
+    const subscriber = onAuthStateChanged(AUTH, async (user) => {
+      await onUserChange(user);
+    });
+    return subscriber;
+  } catch (err) {
+    console.error('ERR INITIALIZING AUTH SUB: ', err);
+    return null;
+  }
+}
+
+export function unsubscribeAuth(subscribe: Unsubscribe) {
+  subscribe();
+  return true;
+}
+
+export const extractOAuthProviders = (authUser: User) => {
+  return authUser.providerData.map((x) => x.providerId.replace('.com', ''));
+};
+
+export const isOAuth = (authUser: User) => {
+  const providers = extractOAuthProviders(authUser);
+  return providers.some((x) => EnabledOAuthProviders.includes(x));
+};
